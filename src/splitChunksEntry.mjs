@@ -6,8 +6,6 @@
   https://opensource.org/licenses/MIT.
 */
 
-console.log('hi')
+import { expect } from 'vitest'
 
-import('vitest').then(({ expect }) => {
-  console.log({ expect })
-})
+console.log({ expect })

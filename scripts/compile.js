@@ -10,18 +10,35 @@ class TestPlugin {
                     name: this.constructor.name
                 },
                 async () => {
-                    console.log(compilation.namedChunks.get('main'))
+                    const group = compilation.namedChunkGroups.get('main')
+                    const assetNames = []
+                    for (const chunk of group.chunks) {
+                        assetNames.push(...getNamesOfAssetsInChunk(chunk))
+                    }
+                    console.log(assetNames)
                 }
             )
         })
     }
 }
 
+function getNamesOfAssetsInChunk(chunk) {
+    const assetNames = []
+
+    assetNames.push(...chunk.files)
+
+    if (chunk.auxiliaryFiles) {
+        assetNames.push(...chunk.auxiliaryFiles)
+    }
+
+    return assetNames
+}
+
 function run() {
     const config = {
         mode: 'production',
         entry: {
-            main: path.resolve(__dirname, '../src/splitChunksEntry.js')
+            main: path.resolve(__dirname, '../src/splitChunksEntry.mjs')
         },
         optimization: {
             minimize: false,
@@ -30,6 +47,7 @@ function run() {
             }
         },
         output: {
+            filename: '[chunkhash].js',
             path: path.resolve(__dirname, '../rspack-dist')
         },
         plugins: [
@@ -40,7 +58,7 @@ function run() {
     const compiler = webpack(config)
     compiler.run((webpackError, stats) => {
         // console.log(webpackError)
-        const statsJson = stats.toJson('verbose')
+        // const statsJson = stats.toJson('verbose')
         // console.log(statsJson.errors)
     });
 }
