@@ -6,4 +6,9 @@ export default defineConfig({
       root: "./rsbuild-dist",
     },
   },
+  tools: {
+    rspack: {
+      plugins: []
+    }
+  }
 });

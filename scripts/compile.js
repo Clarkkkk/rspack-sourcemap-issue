@@ -1,30 +1,47 @@
 const path = require('path')
 const rspack = require('@rspack/core')
+const webpack = require('webpack')
+
+class TestPlugin {
+    apply(compiler) {
+        compiler.hooks.thisCompilation.tap(this.constructor.name, (compilation) => {
+            compilation.hooks.processAssets.tapPromise(
+                {
+                    name: this.constructor.name
+                },
+                async () => {
+                    console.log(compilation.namedChunks.get('main'))
+                }
+            )
+        })
+    }
+}
 
 function run() {
     const config = {
         mode: 'production',
-        entry: path.resolve(__dirname, '../src/index.js'),
+        entry: {
+            main: path.resolve(__dirname, '../src/splitChunksEntry.js')
+        },
+        optimization: {
+            minimize: false,
+            splitChunks: {
+                chunks: 'all'
+            }
+        },
         output: {
             path: path.resolve(__dirname, '../rspack-dist')
         },
         plugins: [
-            new rspack.CopyRspackPlugin({
-                patterns: [
-                    {
-                        from: path.resolve(__dirname, '../public'),
-                        to: path.resolve(__dirname, '../rspack-dist')
-                    }
-                ]
-            })
+            new TestPlugin()
         ]
     }
 
-    const compiler = rspack(config)
+    const compiler = webpack(config)
     compiler.run((webpackError, stats) => {
-        console.log(webpackError)
+        // console.log(webpackError)
         const statsJson = stats.toJson('verbose')
-        console.log(statsJson.errors)
+        // console.log(statsJson.errors)
     });
 }
 
